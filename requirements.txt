@@ -1,0 +1,16 @@
+pytorch == 1.7.1
+numpy >= 1.15.4    #For data preparation process
+scikit-learn >= 0.20.2 #For AUC-PR
+
+torch-cluster
+torch-sparse
+torch-sparse
+torch-spline-conv
+torch-geometric==1.6.1
+
+# 在cuda==10.2 和 pytorch==1.7.1环境下安装torch-geometric
+# pip install --no-index torch-scatter -f https://pytorch-geometric.com/whl/torch-1.7.0+cu102.html
+# pip install --no-index torch-sparse -f https://pytorch-geometric.com/whl/torch-1.7.0+cu102.html
+# pip install --no-index torch-cluster -f https://pytorch-geometric.com/whl/torch-1.7.0+cu102.html
+# pip install --no-index torch-spline-conv -f https://pytorch-geometric.com/whl/torch-1.7.0+cu102.html
+# pip install torch-geometric
