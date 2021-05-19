@@ -136,10 +136,10 @@ class KGEModel(nn.Module):
             # set ote
             self.bignn = BiGNN(nentity+add_dummy, nrelation + add_dummy, args, self.embedding_range.item(), model='OTE')
             assert self.add_dummy
-        # 设置引入实体上下文的Rot3DE
-        if model_name in ("CRot3DE",):
+        # 设置融合实体上下文的Rot3DE == GCRot3DE
+        if model_name in ("GCRot3DE",):
             self.bignn = BiGNN(nentity + add_dummy, nrelation + add_dummy, args, self.embedding_range.item(),
-                               model='CRot3DE')
+                               model='Rot3DE')
             assert self.add_dummy
         
         # default sigmoid function
@@ -148,9 +148,9 @@ class KGEModel(nn.Module):
         if model_name in ('RotatE', 'RotatED') and (not double_entity_embedding or double_relation_embedding):
             raise ValueError('RotatE should use --double_entity_embedding')
 
-        # Rot3DE，Rot3DED，CRot3DE参数进行检查
-        if model_name in ('Rot3DE', 'Rot3DED', 'CRot3DE') and not (three_entity_embedding and four_relation_embedding):
-            raise ValueError('Rot3DE et al. should use --three_entity_embedding and --four_relation_embedding)')
+        # Rot3DE，Rot3DED，GCRot3DE参数进行检查
+        if model_name in ('Rot3DE', 'Rot3DED', 'GCRot3DE') and not (three_entity_embedding and four_relation_embedding):
+            raise ValueError('Rot3DE, GCRot3DE et al. should use --three_entity_embedding and --four_relation_embedding)')
        
 
         if model_name == 'ComplEx' and (not double_entity_embedding or not double_relation_embedding):
@@ -204,7 +204,7 @@ class KGEModel(nn.Module):
             'BiGNNPred': self.BiGNNPred,
             'BiGNNPredOTE': self.BiGNNPredOTE,
             'OTE':    self.OTE,
-            'CRot3DE': self.CRot3DE,
+            'GCRot3DE': self.GCRot3DE,
             'Rot3DED': self.Rot3DED,
             'Rot3DE': self.Rot3DE,
         }
@@ -566,10 +566,10 @@ class KGEModel(nn.Module):
         score = self.gamma.item() - score/4.0
         return score
 
-    # CRot3DE（对应于文中的CRot3DE模型）
-    # 作用：计算引入上下文的CRot3DE中的距离d(h,r,t)
+    # GCRot3DE（对应于文中的GCRot3DE模型）
+    # 作用：计算融合实体图上下文的GCRot3DE中的距离d(h,r,t)
     # d(h,r,t) = ( d((h,r),t) + d(h,(r,t)) + dc((h,r),t) + dc(h,(r,t)) ) / 4
-    def CRot3DE(self, head, relation, tail, mode):
+    def GCRot3DE(self, head, relation, tail, mode):
         pi = 3.14159265358979323846
 
         neg_sz = max(head.size(1), tail.size(1))
@@ -631,7 +631,9 @@ class KGEModel(nn.Module):
         score = score + self.dropout(torch.stack([x_d, y_d, z_d, w_d], dim=0).norm(dim=0)).sum(dim=2)
 
         # hr - t
-        x_score, y_score, z_score, w_score = Rot3DE_Trans((hx, hy, hz), (rx, ry, rz, w), True)
+        x_score, y_score, z_score, w_score = Rot3DE_Trans((hx, hy, hz), (ux, uy, uz, w), True)
+
+        # x_score, y_score, z_score, w_score = Rot3DE_Trans((hx, hy, hz), (rx, ry, rz, w), True)
         # re_score, im_score = RotatE_Trans((re_head, im_head), (re_relation, im_relation), True)
         hr = torch.cat((x_score, y_score, z_score, w_score), dim=-1)
         x_score = x_score - tx

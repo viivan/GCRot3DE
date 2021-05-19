@@ -8,9 +8,19 @@ torch-sparse
 torch-spline-conv
 torch-geometric==1.6.1
 
-# 在cuda==10.2 和 pytorch==1.7.1环境下安装torch-geometric
-# pip install --no-index torch-scatter -f https://pytorch-geometric.com/whl/torch-1.7.0+cu102.html
-# pip install --no-index torch-sparse -f https://pytorch-geometric.com/whl/torch-1.7.0+cu102.html
-# pip install --no-index torch-cluster -f https://pytorch-geometric.com/whl/torch-1.7.0+cu102.html
-# pip install --no-index torch-spline-conv -f https://pytorch-geometric.com/whl/torch-1.7.0+cu102.html
-# pip install torch-geometric
+# 安装 pytorch==1.8.0，以及该环境下安装torch-geometric
+# conda update conda
+# conda create -n pytorch
+# source activate pytorch
+
+# python -m pip install --upgrade pip
+# //通过阿里云安装。
+# pip install torch==1.8.0  -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+# pip install ipython  -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+
+# pip install torch-scatter -f https://pytorch-geometric.com/whl/torch-1.8.0+cu102.html
+# pip install torch-sparse -f https://pytorch-geometric.com/whl/torch-1.8.0+cu102.html
+# pip install torch-cluster -f https://pytorch-geometric.com/whl/torch-1.8.0+cu102.html
+# pip install torch-spline-conv -f https://pytorch-geometric.com/whl/torch-1.8.0+cu102.html
+# pip install pytest-runner  -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+# pip install torch-geometric -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com

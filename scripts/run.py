@@ -1,5 +1,5 @@
+#coding:utf-8
 #!/usr/bin/python3
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -42,7 +42,7 @@ def parse_args(args=None):
     parser.add_argument('--data_path', type=str, default=None)
     parser.add_argument('--model', default='TransE', type=str)
 
-    # double_entity_embedding for Rot3DE
+    # double_entity_embedding for RotatE
     parser.add_argument('-de', '--double_entity_embedding', action='store_true')
     parser.add_argument('-dr', '--double_relation_embedding', action='store_true')
     # three_times entity
@@ -51,7 +51,7 @@ def parse_args(args=None):
     parser.add_argument('-fr', '--four_relation_embedding', action='store_true')
     parser.add_argument('-n', '--negative_sample_size', default=128, type=int)
     parser.add_argument('-d', '--hidden_dim', default=500, type=int)
-    parser.add_argument('-g', '--gamma', default=12.0, type=float)      #used for modeling in TransE, RotatE, pRotatE
+    parser.add_argument('-g', '--gamma', default=12.0, type=float)      #used for modeling in TransE, RotatE, pRotatE et. al.
 
     parser.add_argument('-adv', '--negative_adversarial_sampling', action='store_true')
     parser.add_argument('-a', '--adversarial_temperature', default=1.0, type=float) #used for negative_adversarial_sampling only
@@ -67,7 +67,7 @@ def parse_args(args=None):
     parser.add_argument('--conv_dims', default="20_40_40", type=str) #used for conve and cconve
     parser.add_argument('-lr', '--learning_rate', default=0.0001, type=float)
     parser.add_argument('-np_ratio', '--neg_pos_ratio', default=1.0, type=float)
-    parser.add_argument('-cpu', '--cpu_num', default=32, type=int)
+    parser.add_argument('-cpu', '--cpu_num', default=12, type=int)
     parser.add_argument('-init', '--init_checkpoint', default=None, type=str)
     parser.add_argument('--init_embedding', default=None, type=str)
     parser.add_argument('-save', '--save_path', default=None, type=str)
@@ -93,6 +93,7 @@ def parse_args(args=None):
     #parser.add_argument('--use_gpred_rev_score', action='store_true')
     parser.add_argument('--gpred_max_ent_num', default=20000, type=int)
     parser.add_argument('--gpred_max_smp_num', default=500, type=int)
+
     #graph model
     parser.add_argument('--dropout', default=0.2, type=float)
     parser.add_argument('--link_dropout', default=0.0, type=float)
@@ -112,7 +113,7 @@ def parse_args(args=None):
     parser.add_argument('--gnn_conv_dims', default="0_3", type=str)
     #parser.add_argument('--init_factor', default=0, type=float, help="special initialization. 0 means default is used")
 
-    parser.add_argument('--init_mode', default='uniform', type=str, choices=['uniform', 'normal', 'xavier_uniform','xavier_normal'])
+    parser.add_argument('--init_mode', default='uniform', type=str, choices=['uniform', 'normal', 'xavier_uniform', 'xavier_normal'])
     parser.add_argument('--negative_sample_head_size', default=16, type=int)
     parser.add_argument('--negative_sample_tail_size', default=32, type=int)
     parser.add_argument('--negative_sample_half_correct', action='store_true')
@@ -151,7 +152,7 @@ def override_config(args):
         args.double_entity_embedding = argparse_dict['double_entity_embedding']
         args.double_relation_embedding = argparse_dict['double_relation_embedding']
 
-    # 为Rot3DE 和CRot3DE中设置特殊参数
+    # 为Rot3DE 和GCRot3DE中设置特殊参数
     # 开启 实体嵌入*3， 关系嵌入* 4
     if 'three_entity_embedding' in argparse_dict:
         args.three_entity_embedding = argparse_dict['three_entity_embedding']
@@ -186,7 +187,7 @@ def save_model(model, optimizer, save_variable_list, args, is_best_model=False):
 
     with open(os.path.join(save_path, 'config.json'), 'w') as fjson:
         json.dump(argparse_dict, fjson)
-    print(os.path.join(save_path, 'config.json'))
+    # print(os.path.join(save_path, 'config.json'))
 
     torch.save({
         **save_variable_list,
@@ -332,7 +333,7 @@ def main(args):
 
     #real_test_triples = read_triple(os.path.join(args.data_path, 'temp/11_test.txt'), entity2id, relation2id)
 
-    real_test_triples = read_triple(os.path.join(args.data_path, 'temp/n-n.txt'), entity2id, relation2id)
+    real_test_triples = read_triple(os.path.join(args.data_path, 'test.txt'), entity2id, relation2id)
 
     logging.info('#real_test_triples: %d' % len(real_test_triples))
 

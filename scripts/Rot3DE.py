@@ -7,26 +7,27 @@ import torch
 # 设置了头实体关系到尾实体的转换
 # 即正向(三维)旋转：由(头实体和关系)映射获得尾实体
 # (h,r)=>t
-def fun1(h, r):
+def forward_rotate(h, r):
     hx, hy, hz = h
     rx, ry, rz, rw = r
-    x1, y1, z1, w1 = mult((rx, ry, rz, rw), (hx, hy, hz, 0))
-    x1, y1, z1, w1 = mult((x1, y1, z1, w1), (-rx, -ry, -rz, w1))
+    x1, y1, z1, w1 = quaternion_product((rx, ry, rz, rw), (hx, hy, hz, 0))
+    x1, y1, z1, w1 = quaternion_product((x1, y1, z1, w1), (-rx, -ry, -rz, w1))
     return x1, y1, z1, w1
+
 
 # 设置了关系尾实体到头实体的转换
 # 即反向(三维)旋转：由(尾实体和关系)映射获得头实体
 # (r,t)=>h
-def fun2(r, t):
+def backward_rotate(r, t):
     tx, ty, tz = t
     rx, ry, rz, rw = r
-    x1, y1, z1, w1 = mult((-rx, -ry, -rz, rw), (tx, ty, tz, 0))
-    x1, y1, z1, w1 = mult((x1, y1, z1, w1), (rx, ry, rz, w1))
+    x1, y1, z1, w1 = quaternion_product((-rx, -ry, -rz, rw), (tx, ty, tz, 0))
+    x1, y1, z1, w1 = quaternion_product((x1, y1, z1, w1), (rx, ry, rz, w1))
 
     return x1, y1, z1, w1
 
 # 设置四元数乘法运算
-def mult(q1, q2):
+def quaternion_product(q1, q2):
     x1, y1, z1, w1 = q1
     x2, y2, z2, w2 = q2
 
@@ -43,7 +44,7 @@ def mult(q1, q2):
 # return ent
 def Rot3DE_Trans(ent, rel, is_hr):
     if is_hr:   #ent == head
-        x, y, z, w = fun1(ent, rel)
+        x, y, z, w = forward_rotate(ent, rel)
     else:   #ent == tail
-        x, y, z, w = fun2(rel, ent)
+        x, y, z, w = backward_rotate(rel, ent)
     return x, y, z, w
